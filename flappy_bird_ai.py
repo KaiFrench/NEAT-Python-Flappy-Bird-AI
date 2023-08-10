@@ -8,6 +8,7 @@ pygame.font.init()
 WIN_WIDTH = 500
 WIN_HEIGHT = 800
 
+
 GEN = 0
 
 
@@ -17,6 +18,25 @@ BASE_IMG = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "base
 BG_IMG = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bg.png")))
 
 STAT_FONT = pygame.font.SysFont("comicsans", 50)
+
+
+def play_flap():
+    pygame.init()
+    flap = "audios\sfx_wing.wav"
+    pygame.mixer.music.load(flap)
+    pygame.mixer.music.play()
+
+def play_hit():
+    pygame.init()
+    hit = "audios\sfx_hit.wav"
+    pygame.mixer.music.load(hit)
+    pygame.mixer.music.play()
+
+def play_point():
+    pygame.init()
+    point = "audios\sfx_point.wav"
+    pygame.mixer.music.load(point)
+    pygame.mixer.music.play()
 
 
 class Bird:
@@ -39,6 +59,7 @@ class Bird:
         self.vel = -10.5
         self.tick_count = 0
         self.height = self.y
+        play_flap()
 
     def move(self):
         self.tick_count += 1
@@ -230,6 +251,7 @@ def main(genomes, config):
         for pipe in pipes:
             for x, bird in enumerate(birds):
                 if pipe.collide(bird):
+                    play_hit()
                     ge[x].fitness -= 1
                     birds.pop(x)
                     nets.pop(x)
@@ -243,6 +265,7 @@ def main(genomes, config):
                 rem.append(pipe)
 
             pipe.move()
+        
 
         if add_pipe:
             score += 1
@@ -250,11 +273,13 @@ def main(genomes, config):
                 g.fitness += 5
             pipes.append(Pipe(575))
 
+
         for r in rem:
             pipes.remove(r)
 
         for x, bird in enumerate(birds):
             if bird.y + bird.img.get_height() >= 730 or bird.y < 0:
+                play_hit()
                 birds.pop(x)
                 nets.pop(x)
                 ge.pop(x)
@@ -277,7 +302,7 @@ def run(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(main, 100000)
+    winner = p.run(main, 50)
 
 if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
